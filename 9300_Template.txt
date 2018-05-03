@@ -1,0 +1,45 @@
+#*
+ Tpmplated config for 9300 Catalyst Switches
+ Variables:
+ 	$hostname - (String) Hostname of this device
+	$if_range - (Integer) 24/48port switch
+	$data_vlan - (Integer) Data VLAN number
+	$voice_vlan - (Integer) Voice VLAN number, can be left blank
+	$management_vlan - (Integer) Mgmt VLAN number
+	$management_ip - (IPv4 address) Management IP
+*#
+hostname $hostname
+!
+## The $ sign inside hashes needs to be escaped witch ${esc.d}
+enable secret 5 ${esc.d}1${esc.d}AXZX${esc.d}uTeHYXmhP.ImdDE4bf/9S0
+!
+#foreach($if_it in [1..$if_range])            
+interface GigabitEthernet1/0/$if_it
+ switchport mode access
+ switchport access vlan $data_vlan
+#if($voice_vlan!="")
+ switchport voice vlan $voice_vlan
+#end
+!         
+#end
+!
+interface Vlan$data_vlan
+ description Data VLAN
+ ip address 192.168.$data_vlan.1 255.255.255.0
+ no shutdown
+!
+#if($voice_vlan!="")
+interface Vlan$voice_vlan
+ description Voice VLAN
+ ip address 192.168.$voice_vlan.1 255.255.255.0
+ no shutdown 
+#end
+!
+#if($management_vlan!="")
+interface Vlan$management_vlan
+ description Management VLAN
+ ip add $management_ip 255.255.255.0
+ no shutdown 
+#end      
+!         
+end
